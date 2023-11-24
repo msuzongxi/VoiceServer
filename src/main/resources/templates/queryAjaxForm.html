@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<div id="demo">
+<h1>Demo of Ajax Request</h1>
+<button type="button" onclick="loadDoc()">Display Current Time</button>
+</div>
+
+<div id="main">
+
+</div>
+
+<script>
+function loadDoc() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("main").innerHTML =
+      this.responseText;
+    }
+  };
+  xhttp.open("GET", "/doAjax", true);
+  xhttp.send();
+}
+</script>
+
+</body>
+</html>

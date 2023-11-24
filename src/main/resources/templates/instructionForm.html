@@ -1,0 +1,121 @@
+<html xmlns:th="http://www.thymeleaf.org" class="JFEScope" lang="EN">
+  <head>
+    <title>Experiment Instruction</title>
+    <link href="/stylesheet.css" rel="stylesheet">
+    <style>
+      audio {
+        display: block;
+        margin: 5px;
+      }
+      
+	#Progress_Status {
+	  width: 25%;
+	  background-color: #ddd;
+	}
+  
+	#myprogressBar {
+	  width: 0%;
+	  height: 25px;
+	  background-color: #4CAF50;
+	  text-align: center;
+	  line-height: 20px;
+	  color: black;
+	}
+      
+	.JFEScope .questionFocused   .advanceButtonContainer {transition:opacity .3s!important;visibility:unset;opacity:1}
+	.JFEScope .questionUnfocused .advanceButtonContainer, .advanceButtonContainer {transition:opacity .3s!important;visibility:hidden;opacity:0}
+	.Skin .Bipolar .bipolar-mobile-header, .Skin .Bipolar .desktop .bipolar-mobile-header, .Skin .Bipolar .mobile .ColumnLabelHeader {display: none}
+	
+	 /* Hide mobile preview scrollbar for Chrome, Safari and Opera */
+	html.MobilePreviewFrame::-webkit-scrollbar { display: none; }
+	
+	/* Hide mobile preview scrollbar for IE and Edge */
+	html.MobilePreviewFrame { -ms-overflow-style: none; scrollbar-width: none; }
+	table, th, td{
+		border: 1px solid black;
+		border-collapse: collapse;
+		padding:5px;
+		margin-bottom:10px;
+		font-size:14px;
+	}
+	.text{
+		font-size: 15px;
+	}
+	.question{
+		font-size:15px;
+	}
+	ul li{margin-left:20px;font-size:15px;}
+	</style>
+	<style type="text/css">.accessibility-hidden{height:0;width:0;overflow:hidden;position:absolute;left:-999px}</style>
+  </head>
+  <body>
+  <div class="Skin">
+		<div id="SkinContent">
+			<div id="LogoBar">
+			<div id="Logo">
+			<h1>Experiment Instruction</h1>
+			  		<div th:if="${session.test == 'y'}">
+			   			<div>Welcome, <strong>[[${uuid}]]</strong></div>
+			   		</div>
+			
+			</div></div>
+			<br/>
+<p class="text">
+Welcome to our music recommender systems experiment! 
+<br/>Please read the following instructions carefully before you start the experiment. 
+<br/>There will be 4 different tasks in this experiment. The entire study is expected to take less than 30 minutes.</p><br/>
+<ul>
+	<li>- &nbsp;&nbsp;&nbsp;&nbsp;Understanding Your Voice Features:<br/>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>Task 1</strong>: Verbally Responding to a Randomly Selected Ice-breaker Question
+	</li>
+	<br/>
+	<li>- &nbsp;&nbsp;&nbsp;&nbsp;Understanding Your Music Preferences:<br/>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>Task 2</strong>: Rating Randomly Selected Music Snippets (20 pages)
+	</li>
+	<br/>
+	<li>- &nbsp;&nbsp;&nbsp;&nbsp;Testing Music Recommender Systems:<br/>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>Task 3</strong>: Rating Recommended Music Snippets (10 pages)
+	</li>
+	<br/>
+	<li>
+	- &nbsp;&nbsp;&nbsp;&nbsp;Experimental Wrap-Up: General Survey:<br/>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>Task 4</strong>: A Questionnaire about You
+	</li>
+	<br/>
+</ul>
+<br/>
+<p class="text">
+We will have instructions before each task starts. Please read them carefully. There are no right or wrong answers. We are interested in your personal music preferences.
+</p><br/>
+
+<p class="text">
+During each task, please proceed through the screens one at a time without going back. When you are done with one screen, click the "→" button on the bottom right.
+</p>
+
+<br/>
+
+<p class="text">
+If you want to stop the experiment at any time without completing it, you are free to do so simply by closing the webpage.
+</p>
+
+<br/>
+
+<p class="text">
+Now you can proceed to Task 1 by clicking on <strong>→</strong>
+</p>
+
+<form id="Instructionform" action="/instructionNext" method="post">
+		<div id="Buttons" role="navigation"><input id="NextButton" style="width:12vw;height:3vw" class="NextButton Button" title=" → " type="button" name="NextButton" value="→"></div>
+</form>
+
+<script>
+	const nextButton = document.querySelector('#NextButton')
+	const instructionForm = document.querySelector('#Instructionform')
+  
+    nextButton.addEventListener('click', () => {
+      	instructionForm.submit();
+      });
+</script>
+
+  </body>
+</html>

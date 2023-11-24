@@ -1,0 +1,20 @@
+<html xmlns:th="http://www.thymeleaf.org" class="JFEScope" lang="EN">
+  <head>
+  <style>
+  table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+  </style>
+  </head>
+  <body>
+  <table>
+    <tbody>
+    <tr th:each="cookie : ${cookies}">
+        <td th:text="${cookie}"></td>
+    </tr>
+    </tbody>
+</table>
+<br/><br/>
+  </body>
+</html>

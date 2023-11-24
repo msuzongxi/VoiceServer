@@ -1,0 +1,14 @@
+ssh -i zongxiamazonvoice.pem ec2-user@ec2-3-80-135-27.compute-1.amazonaws.com
+scp -i ~/zongxiamazonvoice.pem voiceserver-0.0.1-SNAPSHOT.jar ec2-user@ec2-3-80-135-27.compute-1.amazonaws.com:~/.
+voiceserver-0.0.1-SNAPSHOT.jar
+http://ec2-3-80-135-27.compute-1.amazonaws.com:8080/api/saveaudio?audio=222
+
+keytool -genkeypair -alias jmxdemo -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore jmxdemo.p12 -validity 3650
+keytool -list -v  -storetype pkcs12 -storepass 123456 -keystore src/main/resources/keystore/jmxdemo.p12
+jmxdemo.p12, 123456
+
+sudo apt-get update
+sudo apt-get install openjdk-8-jdk
+sudo java -jar voiceserver-0.0.1-SNAPSHOT.jar 
+
+scp -i ws1_key.pem /Users/lewis/Documents/voiceserver/target/voiceserver-0.0.1-SNAPSHOT.jar wsuser@52.168.144.169:~/projects/voiceserver/.

@@ -1,0 +1,27 @@
+<html xmlns:th="http://www.thymeleaf.org" class="JFEScope" lang="EN">
+  <head>
+  <style>
+  table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+  </style>
+  </head>
+  <body>
+ 
+ <table>
+ 	<th:block th:each="user : ${users}">
+ 		<tr>
+ 			<td th:text="${user.id}"/>
+ 			<td th:text="${user.fname}"/>
+ 			<td th:text="${user.lname}"/>
+ 			<td th:text="${user.department}"/>
+ 			<td th:text="${user.salary}"/>
+ 		</tr>
+ 	</th:block>
+ </table>
+
+<br/><br/>  
+  
+  </body>
+</html>

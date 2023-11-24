@@ -1,0 +1,9 @@
+<html>
+<body>
+	<div th:each="fileObj : ${fileObjs}">
+		[[${fileObj.date}]]
+		<a th:href="@{/openFile/{file}(file=${fileObj.fileName})}">[[${fileObj.fileName}]]</a>
+		<audio controls th:src="@{/openFile/{file}(file=${fileObj.fileName})}" type="audio/wav"></audio>
+	</div>
+</body>
+</html>

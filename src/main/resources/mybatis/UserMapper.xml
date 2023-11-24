@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cody.sbootmybatis.sbootmybatis.mapper.UserMapper">
+    <resultMap id="user" type="User">
+        <id column="userid" property="userid" javaType="int" ></id>
+        <result column="username" property="username" javaType="String" ></result>
+        <result column="userage" property="userage" javaType="int" ></result>
+        <result column="userpwd" property="userpwd" javaType="String" ></result>
+    </resultMap>
+    <select id="queryAlluser" resultType="User">
+        select * from  user
+    </select>
+    <select id="queryuserbyid"   parameterType="int" resultMap="user" resultType="User">
+         select * from  user
+         <trim suffixOverrides="and"  prefixOverrides="and">
+        <where>
+              <if test="userid!=null">
+                 and userid = #{userid}
+              </if>
+         </where>
+         </trim>
+    </select>
+    <select id="queryuserbyname" resultType="User" parameterType="string" resultMap="user">
+        select * from  user
+        <trim suffixOverrides="and"  prefixOverrides="and">
+            <where>
+                <if test="username!=null">
+                    and username = #{username}
+                </if>
+            </where>
+        </trim>
+    </select>
+    <update id="UpdUser" parameterType="User">
+    </update>
+    <delete id="DelUser"></delete>
+    <insert id="AddUser" parameterType="User" >
+        insert into  user value (${userid},#{username},${userage},#{userpwd})
+    </insert>
+</mapper>

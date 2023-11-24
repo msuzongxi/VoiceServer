@@ -1,0 +1,241 @@
+<html xmlns:th="http://www.thymeleaf.org" class="JFEScope" lang="EN">
+  <head>
+    <title>Task 1: Verbal Response Recording</title>
+    <link href="/stylesheet.css" rel="stylesheet">
+    <style>
+      audio {
+        display: block;
+        margin: 5px;
+      }
+      
+	#Progress_Status {
+	  width: 75%;
+	  background-color: #ddd;
+	}
+  
+	#myprogressBar {
+	  width: 0%;
+	  height: 25px;
+	  background-color: #4CAF50;
+	  text-align: center;
+	  line-height: 20px;
+	  color: black;
+	}
+      
+    </style>
+    <style>
+	.JFEScope .questionFocused   .advanceButtonContainer {transition:opacity .3s!important;visibility:unset;opacity:1}
+	.JFEScope .questionUnfocused .advanceButtonContainer, .advanceButtonContainer {transition:opacity .3s!important;visibility:hidden;opacity:0}
+	.Skin .Bipolar .bipolar-mobile-header, .Skin .Bipolar .desktop .bipolar-mobile-header, .Skin .Bipolar .mobile .ColumnLabelHeader {display: none}
+	
+	 /* Hide mobile preview scrollbar for Chrome, Safari and Opera */
+	html.MobilePreviewFrame::-webkit-scrollbar { display: none; }
+	
+	/* Hide mobile preview scrollbar for IE and Edge */
+	html.MobilePreviewFrame { -ms-overflow-style: none; scrollbar-width: none; }
+	</style>
+	<style type="text/css">.accessibility-hidden{height:0;width:0;overflow:hidden;position:absolute;left:-999px}</style>
+  </head>
+  <body>
+  <div class="Skin">
+  		<div th:if="${session.test == 'y'}">
+   			<div>Welcome, [[${session.uuid}]]</div>
+   		</div>
+  		
+		<div id="SkinContent">
+			<div id="LogoBar"><div id="Logo"><h1>Task 1: Verbal Response Recording</h1></div></div>
+			<p class="QuestionText">The goal of this task is to collect your voice features (e.g., phonation, pitch, rate, etc.) to be used as inputs for music recommender systems.
+			<br/><br/>Imagine that you are chatting with a friend and he/she asks you the following question:</p>
+		    <p class="QuestionText"><font size=3><strong>&nbsp;&nbsp;&nbsp;&nbsp;[[${question}]]</strong></font></p>
+		    </br>
+		    <p class="QuestionText">There are no right or wrong answers. Please click on <strong>Record Speech</strong> button and provide your verbal response to the above question for up to 30 seconds.</p>
+		    <p class="QuestionText">You may click on <strong>Stop Speech</strong> button when you finish your response and check your recorded response by clicking on the play button on the right.</p>
+		    <p class="QuestionText">In case you want to record a different response, you may click on the <strong>Reload Page</strong> button to restart.</p>
+		    <br/><br/>
+		
+		<table>
+			<tr>
+			<td width="80%"><div id="Progress_Status">
+		  <div id="myprogressBar">0s</div> 
+		</div></td><td><div><audio id='playaudio' preload="auto" width="320" height="40" controls="true"><source type="audio/mp3" src=""></audio></div></td>
+			</tr>
+		</table>  
+		
+		<br/><br/>
+		<button id="Record">Record Speech</button>
+		<button id="Stop">Stop Speech</button>
+		<button id="Reload" onclick="location.reload()">Reload Page</button>
+		 
+		<!--<button id="Play" disabled>Play Speech</button>--> 
+		
+		<div id="Buttons" role="navigation"><input id="NextButton" disabled style="width:12vw;height:3vw" class="NextButton Button" title=" → " type="button" name="NextButton" value="Next → "></div>
+		</div>
+</div>
+<script>
+const audio_len_m = 30 //10 seconds
+const audio_len_s = 30000 //10 seconds
+const move_speed = 100 //ms
+const recordAudio = () =>
+        new Promise(async resolve => {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          const mediaRecorder = new MediaRecorder(stream);
+          let audioChunks = [];
+
+          mediaRecorder.addEventListener('dataavailable', event => {
+            audioChunks.push(event.data);
+          });
+
+          const start = () => {
+            audioChunks = [];
+            mediaRecorder.start();
+          };
+
+          const stop = () =>
+            new Promise(resolve => {
+              mediaRecorder.addEventListener('stop', () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                const play = () => audio.play();
+                resolve({ audioChunks, audioBlob, audioUrl, play });
+              });
+
+              mediaRecorder.stop();
+            });
+
+          resolve({ start, stop });
+        });
+  let recorder;
+  let audio;
+
+  const recordButton = document.querySelector('#Record');
+  const stopButton = document.querySelector('#Stop');
+  stopButton.setAttribute('disabled', true);
+  //const playButton = document.querySelector('#Play');
+  const myprogressBar = document.querySelector('#myprogressBar')
+  const nextButton = document.querySelector('#NextButton')
+  const reloadButton = document.querySelector('#Reload')
+  reloadButton.setAttribute('disabled', true);
+  const playaudio = document.querySelector('#playaudio');
+  var canNext = 0
+  var uuid = "[[${session.uuid}]]";
+  var identity;
+
+
+  recordButton.addEventListener('click', async () => {
+          recordButton.setAttribute('disabled', true);
+          stopButton.removeAttribute('disabled');
+          //playButton.setAttribute('disabled', true);
+          // saveButton.setAttribute('disabled', true);
+          if (!recorder) {
+            recorder = await recordAudio();
+          }
+          var width = 0;
+          identity = setInterval(scene, move_speed);
+          function scene() {
+            if (width > audio_len_m) {
+              clearInterval(identity);
+            } else {
+              width = width + move_speed/1000; 
+              percentage = (width/audio_len_m * 100)
+              myprogressBar.style.width = percentage + '%'; 
+              myprogressBar.innerHTML = parseInt(width)  + 's';
+            }
+          }
+          recorder.start();
+		  const sleep = time => new Promise(resolve => setTimeout(resolve, time));
+          await sleep(audio_len_s);
+          audio = await recorder.stop();
+
+          //save audio begin          
+          const reader = new FileReader();
+          reader.readAsDataURL(audio.audioBlob);
+          reader.onload = () => {
+          const base64AudioMessage = reader.result.split(',')[1];
+
+          fetch('/api/voices', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: base64AudioMessage, rid:uuid})
+          }).then(res => {
+            if (res.status === 200) {
+              nextButton.removeAttribute('disabled');
+              canNext = 1;
+              playaudio.src='/openFile/'+uuid+'.mp4';
+	          //recordButton.removeAttribute('disabled');
+	          stopButton.setAttribute('disabled', true);
+	          reloadButton.removeAttribute('disabled');
+              return;
+            }
+            console.log('Invalid status saving audio message: ' + res.status);
+          });
+          };
+
+        });
+        
+  stopButton.addEventListener('click', async () => {
+          if (!recorder) {
+            recorder = await recordAudio();
+          }
+          audio = await recorder.stop();
+          clearInterval(identity);
+          
+          const reader = new FileReader();
+          reader.readAsDataURL(audio.audioBlob);
+          reader.onload = () => {
+          const base64AudioMessage = reader.result.split(',')[1];
+
+          fetch('/api/voices', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: base64AudioMessage, rid:uuid})
+          }).then(res => {
+            if (res.status === 200) {
+              nextButton.removeAttribute('disabled');
+              canNext = 1;
+              playaudio.src='/openFile/'+uuid+'.mp4';
+	          //recordButton.removeAttribute('disabled');
+	          stopButton.setAttribute('disabled', true);
+	          reloadButton.removeAttribute('disabled');
+              return;
+            }
+            console.log('Invalid status saving audio message: ' + res.status);
+          });
+          };
+
+        });
+
+ /* playButton.addEventListener('click', () => {
+        var identity = setInterval(pscene, move_speed);
+        var width = 0;
+          function pscene() {
+            if (width > audio_len_m) {
+              clearInterval(identity);
+            } else {
+              width = width + move_speed/1000; 
+              percentage = (width/audio_len_m * 100)
+              myprogressBar.style.width = percentage + '%'; 
+              myprogressBar.innerHTML = width.toFixed(0)  + 's';
+            }
+          }
+        playButton.setAttribute('disabled', true);
+        audio.play();
+        setTimeout(retry, audio_len_s+1000);
+        function retry(){
+          recordButton.removeAttribute('disabled');
+          recordButton.innerHTML = "Record Again";
+        }
+      });*/
+      
+      nextButton.addEventListener('click', () => {
+      	if (canNext != 1){
+      		alert("Please record your voice before proceed to next page!");
+      		return; 
+      	}
+      	//location.href = "https://milwaukee.qualtrics.com/jfe/form/SV_9LIbfCdlzJNYzUG?uuid="+uuid;
+      	location.href = "https://milwaukee.qualtrics.com/jfe/form/SV_9RYZHDd4JzpVVzM?uuid="+uuid;
+      });
+  
+</script>
+  </body>
+</html>

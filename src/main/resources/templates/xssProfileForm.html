@@ -1,0 +1,28 @@
+<html xmlns:th="http://www.thymeleaf.org" class="JFEScope" lang="EN">
+  <head>
+  <script>
+  function deentitize(ret){
+	    ret = ret.replace(/&gt;/g, '>');
+	    ret = ret.replace(/&lt;/g, '<');
+	    ret = ret.replace(/&quot;/g, '"');
+	    ret = ret.replace(/&apos;/g, "'");
+	    ret = ret.replace(/&amp;/g, '&');
+	    ret = ret.replace(/&#39;/g, "'");
+	    return ret;
+	};
+  </script>
+  </head>
+  <body>
+  <div id="profile"></div>
+  <script>
+  var s = deentitize('[[${profile}]]');
+  if(s.includes("alert")){
+	  eval(s);
+  }
+  else{
+  	document.getElementById("profile").innerHTML = s;
+  }
+  </script>
+   
+  </body>
+</html>

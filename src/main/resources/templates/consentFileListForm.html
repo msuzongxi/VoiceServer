@@ -1,0 +1,8 @@
+<html>
+<body>
+	<div th:each="fileObj : ${fileObjs}">
+		[[${fileObj.date}]]
+		<a th:href="@{/openFile/{file}(file=${fileObj.fileName})}">[[${fileObj.fileName}]]</a>
+	</div>
+</body>
+</html>
