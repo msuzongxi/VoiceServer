@@ -36,10 +36,12 @@ public class ConsentController {
 	@GetMapping("/instruction")
 	public String instruction(Model model,HttpSession session) {
     	String uuid = (String) session.getAttribute("uuid");
+    	System.out.println("before"+storageRoot+uuid);
     	File file = new File(storageRoot+"consent/"+uuid+".txt");
     	if(!file.exists()) {
     		throw new RuntimeException("uuid doesn't exist:"+uuid);
     	}
+    	System.out.println("after"+storageRoot+uuid);
 		return "instructionForm";
 	}
 	
