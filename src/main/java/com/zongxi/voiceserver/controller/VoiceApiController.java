@@ -144,7 +144,7 @@ public class VoiceApiController {
 		            System.out.println("Here is the standard output of the command (if any):\n");
 		            System.out.println(builder.toString());
 		            String recommd = builder.toString();
-		            recommd = recommd.replace("}", "\"randId\":\""+String.valueOf(randNum)+"\"}");
+		            recommd = recommd.replace("}", ",\"randId\":\""+String.valueOf(randNum)+"\"}");
 		            
 		            out.write(recommd.getBytes());
 		            out.flush();
