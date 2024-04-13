@@ -113,8 +113,15 @@ public class VoiceApiController {
 				String s = null;
 				try {
 					Random rand = new Random();
-					int randNum = rand.nextInt(3) + 1;
+					int randNum = rand.nextInt(9) + 1;
 					String algPy = vbcfPy;
+					if(randNum <= 6) {
+						randNum = 3;
+					}else if(randNum <= 8){
+						randNum = 1;
+					}else {
+						randNum = 2;
+					}
 					if(randNum == 1) {
 						algPy = popularityPy;
 					}else if(randNum == 2) {
