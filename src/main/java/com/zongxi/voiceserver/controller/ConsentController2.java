@@ -21,19 +21,19 @@ import org.thymeleaf.util.StringUtils;
 import io.netty.util.internal.StringUtil;
 
 @Controller
-public class ConsentController {
+public class ConsentController2 {
 	
     @Value("${storage.root}")
     private String storageRoot;    
 	
-	@GetMapping("/consentForm")
+	@GetMapping("/consentForm2")
 	public String consentForm(Model model, @RequestParam(value="test", required=false, defaultValue="n")String test, HttpSession session) {
 		model.addAttribute("uuid", UUID.randomUUID());
 		session.setAttribute("test", test);
-		return "consentForm";
+		return "consentForm2";
 	}
 	
-	@GetMapping("/instruction")
+	@GetMapping("/instruction2")
 	public String instruction(Model model,HttpSession session) {
     	String uuid = (String) session.getAttribute("uuid");
     	System.out.println("before"+storageRoot+uuid);
@@ -42,27 +42,27 @@ public class ConsentController {
     		throw new RuntimeException("uuid doesn't exist:"+uuid);
     	}
     	System.out.println("after"+storageRoot+uuid);
-		return "instructionForm";
+		return "instructionForm2";
 	}
 	
-	@RequestMapping("/instructionNext")
+	@RequestMapping("/instructionNext2")
 	public RedirectView instructionNext(Model model, HttpSession session) {
     	String uuid = (String) session.getAttribute("uuid");
-    	File file = new File(storageRoot+"consent/"+uuid+".txt");
+    	File file = new File(storageRoot+"consent"+File.separator+uuid+".txt");
     	if(!file.exists()) {
     		throw new RuntimeException("uuid doesn't exist:"+uuid);
     	}
-    	return new RedirectView("voiceRecord");
+    	return new RedirectView("videoRecord");
 	}
 
 
-	@RequestMapping(value="/saveConsent", method=RequestMethod.POST)
+	@RequestMapping(value="/saveConsent2", method=RequestMethod.POST)
 	public RedirectView saveConsent(Model model, HttpSession session, @RequestParam String terms,  @RequestParam String uuid) {
 		if(!"on".equalsIgnoreCase(terms) || StringUtils.isEmpty(uuid))
 			throw new RuntimeException("invalid post");
 		try
 		{
-		    File file = new File(storageRoot+"consent\\"+uuid+".txt");
+		    File file = new File(storageRoot+"consent"+File.separator+uuid+".txt");
 		    FileOutputStream os = new FileOutputStream(file);
 			Random random = new Random();
 			int qidx = random.nextInt(5);
@@ -71,7 +71,7 @@ public class ConsentController {
 			session.setAttribute("qidx", String.valueOf(qidx));
 			session.setAttribute("uuid", uuid);
 			
-			return new RedirectView("instruction");
+			return new RedirectView("instruction2");
 		}
 		catch (Exception e)
 		{

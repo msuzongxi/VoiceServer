@@ -1,0 +1,182 @@
+<html xmlns:th="http://www.thymeleaf.org" class="JFEScope" lang="EN">
+  <head>
+    <title>Consent Form</title>
+    <link href="/stylesheet.css" rel="stylesheet">
+    <style>
+      audio {
+        display: block;
+        margin: 5px;
+      }
+      
+	#Progress_Status {
+	  width: 25%;
+	  background-color: #ddd;
+	}
+  
+	#myprogressBar {
+	  width: 0%;
+	  height: 25px;
+	  background-color: #4CAF50;
+	  text-align: center;
+	  line-height: 20px;
+	  color: black;
+	}
+      
+	.JFEScope .questionFocused   .advanceButtonContainer {transition:opacity .3s!important;visibility:unset;opacity:1}
+	.JFEScope .questionUnfocused .advanceButtonContainer, .advanceButtonContainer {transition:opacity .3s!important;visibility:hidden;opacity:0}
+	.Skin .Bipolar .bipolar-mobile-header, .Skin .Bipolar .desktop .bipolar-mobile-header, .Skin .Bipolar .mobile .ColumnLabelHeader {display: none}
+	
+	 /* Hide mobile preview scrollbar for Chrome, Safari and Opera */
+	html.MobilePreviewFrame::-webkit-scrollbar { display: none; }
+	
+	/* Hide mobile preview scrollbar for IE and Edge */
+	html.MobilePreviewFrame { -ms-overflow-style: none; scrollbar-width: none; }
+	table, th, td{
+		border: 1px solid black;
+		border-collapse: collapse;
+		padding:5px;
+		margin-bottom:10px;
+		font-size:14px;
+	}
+	.text{
+		font-size: 14px;
+	}
+	.question{
+		font-size:15px;
+	}
+	</style>
+	<style type="text/css">.accessibility-hidden{height:0;width:0;overflow:hidden;position:absolute;left:-999px}</style>
+  </head>
+  <body>
+  <div class="Skin">
+		<div id="SkinContent">
+			<div id="LogoBar">
+			<div id="Logo">
+			<h1>Consent Form</h1>
+			  		<div th:if="${session.test == 'y'}">
+			   			<div>Welcome, <strong>[[${uuid}]]</strong></div>
+			   		</div>
+			
+			</div></div>
+			<br/>
+<table width="100%" align="left">
+	<tr>
+	<td width=20%><strong>Study title</strong></td><td>Biometric Personalization Acceptance Model</td>
+	</tr>
+	<tr>
+	<td><strong>Researcher</strong></td>
+	<td>
+	Yaqiong Wang Assistant Professor, PhD, xxxx <br/>
+	Scott Schanke Assistant Professor, PhD, xxxx <br/>
+	Zongxi Liu Assistant Professor, PhD, xxx<br/>
+	Huimin Zhao Professor, PhD, xxx<br/>
+	</td>
+	</tr>
+</table>
+		    
+<p class="text">
+We’re inviting you to participate in a research study. Participation is completely voluntary. If you agree to participate now, you can always change your mind later. There are no negative consequences, whatever you decide.
+</p><br/>
+
+<p class="question"><strong>What is the purpose of this study?</strong><p/> 
+
+<p class="text">
+The purpose of this study is to explore how voice data can provide further information for the recommendation of a person's music preferences.
+</p><br/>
+
+<p class="question"><strong>What will I do?</strong><p/> 
+
+<p class="text">
+The procedure proceeds as follows.<br/><br/>
+If you agree to be in this study, you will be asked to verbally answer 1 icebreaker question randomly drawn from our question pool and your answer will be recorded. After the recording is done, you will go through a series of display screens asking for your evaluations about various music snippets. The session should take no more than 20 minutes. There are no right or wrong responses in the study. Your honest personal judgments are valuable to
+us.
+</p>
+
+<br/>
+<p class="question"><strong>Risks</strong><p/> 
+<table width="100%" align="left">
+	<tr>
+	<td width=35%><strong>Possible risks</strong></td><td><strong>How we're minimizing these risks</strong></td>
+	</tr>
+	<tr>
+	<td>Privacy</td><td>No PII will be collected, all data will be anonymous</td>
+	</tr>
+</table>
+
+<br/>
+<p class="question"><strong>Other Study Information</strong><p/> 
+<table width="100%" align="left">
+	<tr>
+	<td width=35%><strong>Possible benefits</strong></td><td>Enjoy better music recommendations. From a government/society perspective, we will better understand if biometric data, like voice, can be used to predict consumer preferences. This research could help to inform policy to protect consumers.</td>
+	</tr>
+	<tr>
+	<td><strong>Estimated number of participants</strong></td><td>400</td>
+	</tr>
+	<tr>
+	<td><strong>How long will it take?</strong></td><td>20 mins</td>
+	</tr>
+	<tr>
+	<td><strong>Costs</strong></td><td>NONE</td>
+	</tr>
+	<tr>
+	<td><strong>Compensation</strong></td><td>You will be compensated $3.50 and this should take 20 mins of your time.</td>
+	</tr>
+	<tr>
+	<td><strong>Future research</strong></td><td>Your data won’t be used or shared for any future research studies.</td>
+	</tr>
+	<tr>
+	<td><strong>Recordings / Photographs</strong></td><td>We will record you. The recordings will be used for the purpose of correlating vocal features with your preferences in music.</td>
+	</tr>
+	<tr>
+	<td><strong>What identifying information will be collected and why?</strong></td><td>No PII will be collected</td>
+	</tr>
+	<tr>
+	<td><strong>How long will my data be kept?</strong></td><td>Data will be kept for 2 years</td>
+	</tr>
+	<tr>
+	<td><strong>How is data kept secure? </strong></td><td><ul><li>• All identifying information is removed and replaced with a study ID.</li><li>• We’ll store all electronic data on a password-protected, encrypted computer.</li></ul></td>
+	</tr>
+</table>
+
+
+<br/>
+<p class="question"><strong>Contact information:</strong><p/> 
+<table width="100%" align="left">
+	<tr>
+	<td width=35%><strong>For questions about the research, problems, or complaints</strong></td>
+	<td width=33%>Scott Schanke</td>
+	<td><a href="mailto:xxxx@xxxx">xxxx@xxxx</a></td>
+	</tr>
+	<tr>
+	<td><strong>For questions about your rights as a research participant, problems, or complaints</strong></td>
+	<td>IRB (Institutional Review Board; provides ethics oversight)</td>
+	<td><a href="tel:414-662-3544">414-662-3544</a> / <a href="mailto:xxxx@xxxx">xxxx@xxxx</a></td>
+	</tr>
+</table>
+  <br/>
+<form id="Consentform" action="saveConsent2" method="post">
+<p class="question"><strong>Remember, your participation is completely voluntary, and you’re free to withdraw from the study at any time. Do you have any questions about the study? Do you agree to participate?</strong>  
+		    </p>
+		  	<br/>
+			<p class="question"><font size="5vw"><input id="AgreeButton" style="width:10vw;height:2vw" type="checkbox" name="terms"> <strong>Please check box to continue with study</u></strong></font></p>		  
+		</div>
+		<input type="hidden" name="uuid" th:value="${uuid}"/>
+</div>
+</form>
+</div>
+<script>
+	const agreeButton = document.querySelector('#AgreeButton')
+	const consentForm = document.querySelector('#Consentform')
+  
+    agreeButton.addEventListener('change', () => {
+      	if(!consentForm.terms.checked){
+			alert("Please check box to continue with study.");
+			return;
+		}
+      	consentForm.submit();
+      });
+
+  
+</script>
+  </body>
+</html>

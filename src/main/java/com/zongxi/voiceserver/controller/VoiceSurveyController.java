@@ -37,7 +37,7 @@ public class VoiceSurveyController {
     @GetMapping("/voiceRecord")
 	public String greeting(Model model, HttpSession session) {
     	String uuid = (String) session.getAttribute("uuid");
-    	File file = new File(storageRoot+"consent/"+uuid+".txt");
+    	File file = new File(storageRoot+"consent"+File.separator+uuid+".txt");
     	if(!file.exists()) {
     		throw new RuntimeException("uuid doesn't exist:"+uuid);
     	}
