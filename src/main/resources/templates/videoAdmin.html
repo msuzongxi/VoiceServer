@@ -1,0 +1,48 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="EN">
+<head>
+  <title>Video Admin</title>
+  <link href="/stylesheet.css" rel="stylesheet">
+  <style>
+    table, th, td{
+      border: 1px solid black;
+      border-collapse: collapse;
+      padding: 8px;
+      font-size: 14px;
+    }
+    .container { padding: 16px; }
+    .muted { color: #666; font-size: 13px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Video Upload Folder</h2>
+  <div class="muted">Folder: <span th:text="${videoDir}"></span></div>
+  <br/>
+
+  <table style="width:100%;">
+    <thead>
+    <tr>
+      <th style="width:55%;">File Name</th>
+      <th style="width:15%;">Size</th>
+      <th style="width:20%;">Last Modified</th>
+      <th style="width:10%;">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${files == null || files.empty}">
+      <td colspan="4">No video files found.</td>
+    </tr>
+
+    <tr th:each="f : ${files}">
+      <td th:text="${f.name}"></td>
+      <td th:text="${f.sizeHuman}"></td>
+      <td th:text="${f.lastModifiedHuman}"></td>
+      <td>
+        <a th:href="@{/videoAdmin/download(name=${f.name})}">Download</a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>
