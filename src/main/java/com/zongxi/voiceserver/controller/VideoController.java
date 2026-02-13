@@ -22,6 +22,15 @@ public class VideoController {
     
     @Value("${qualtrics.link}")
     private String qualtricsLink;
+    
+    @Value("${facecheck.framesDir}")
+    private String framesDir;
+
+    @Value("${facecheck.extractScript}")
+    private String extractScript;
+
+    @Value("${facecheck.detectScript}")
+    private String detectScript;
 
     // Render page
     @GetMapping("/videoRecord")

@@ -33,6 +33,10 @@ public class VideoAdminController {
     	}
         String videoDirPath = storageRoot + File.separator + "video" + File.separator;
         File videoDir = new File(videoDirPath);
+        
+        String frameDirPath = storageRoot + File.separator + "frame" + File.separator;
+        File frameDir = new File(frameDirPath);
+
 
         List<FileInfo> items = new ArrayList<FileInfo>();
 
@@ -60,13 +64,29 @@ public class VideoAdminController {
                     }
                 }
             }
+        }
+        
+        if (frameDir.exists() && frameDir.isDirectory()) {
+
+            File[] files = frameDir.listFiles();
+            if (files != null) {
+                for (int i = 0; i < files.length; i++) {
+                    File f = files[i];
+                    if (f.isFile()) {
+                        items.add(new FileInfo(
+                                f.getName(),
+                                f.length(),
+                                f.lastModified()
+                        ));
+                    }
+                }
+            }
 
             // Sort newest first
             Collections.sort(items, new Comparator<FileInfo>() {
                 @Override
                 public int compare(FileInfo a, FileInfo b) {
-                    if (a.lastModified == b.lastModified) return 0;
-                    return (a.lastModified < b.lastModified) ? 1 : -1;
+                	return a.name.compareToIgnoreCase(b.name);
                 }
             });
         }

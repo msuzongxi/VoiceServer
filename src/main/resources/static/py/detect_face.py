@@ -28,9 +28,13 @@ def main():
         print("0")
         return 0
 
-    cascade = cv2.CascadeClassifier(
-        cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-    )
+    CASCADE_PATH = os.path.join(
+    os.path.dirname(__file__),
+    "..", "cascades", "haarcascade_frontalface_default.xml")
+
+	cascade = cv2.CascadeClassifier(CASCADE_PATH)
+	if cascade.empty():
+    	raise RuntimeError("Failed to load cascade xml: " + CASCADE_PATH)
 
     for fp in frames:
         img = cv2.imread(fp)
