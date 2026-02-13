@@ -39,7 +39,6 @@ def main():
         return 0
 
     if not (hasattr(cv2, "FaceDetectorYN") and hasattr(cv2.FaceDetectorYN, "create")):
-        # Your cv2 build doesn't include YuNet API
         print("0")
         return 0
 
@@ -48,13 +47,12 @@ def main():
         print("0")
         return 0
 
-    # IMPORTANT: fixed input size to avoid OpenCV 4.5.4 DNN shape mismatch bugs
-    inp_w, inp_h = 320, 320
-
+    # Create once; inputSize will be set per-frame using setInputSize()
+    # Use a safe default initial size (will be overwritten immediately)
     detector = cv2.FaceDetectorYN.create(
         model_path,
         "",                 # config (unused)
-        (inp_w, inp_h),      # fixed input size
+        (320, 320),          # initial input size (placeholder)
         score_th,            # score threshold
         0.3,                 # nms threshold
         5000                 # topK
@@ -65,23 +63,27 @@ def main():
         if img is None:
             continue
 
-        # IMPORTANT: resize to match detector input size
-        resized = cv2.resize(img, (inp_w, inp_h))
+        h, w = img.shape[:2]
+
+        # IMPORTANT for YuNet: set input size to match current image
+        detector.setInputSize((w, h))
 
         try:
-            ok, faces = detector.detect(resized)
+            ok, faces = detector.detect(img)
         except Exception:
-            # If something goes wrong for this frame, just skip it
             continue
 
         if ok and faces is not None and len(faces) > 0:
-            # Filter tiny detections to reduce false positives
+            # Optional: filter tiny boxes (in ORIGINAL image scale)
             for f in faces:
                 bw = float(f[2])
                 bh = float(f[3])
                 if bw >= 40 and bh >= 40:
                     print("1")
                     return 0
+
+            # If you don't want size filtering, just return 1 here instead:
+            # print("1"); return 0
 
     print("0")
     return 0
