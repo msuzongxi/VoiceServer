@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.servlet.http.HttpSession;
 
@@ -23,14 +25,15 @@ public class VideoController {
     @Value("${qualtrics.link}")
     private String qualtricsLink;
     
-    @Value("${facecheck.framesDir}")
-    private String framesDir;
+    @Value("${scripts.python}")        private String pythonBin;
+    @Value("${scripts.extractFrames}") private String extractFramesScript;
+    @Value("${scripts.extractAudio}")  private String extractAudioScript;
+    @Value("${scripts.detectFace}")    private String detectFaceScript;
+    @Value("${scripts.detectSpeech}")  private String detectSpeechScript;
 
-    @Value("${facecheck.extractScript}")
-    private String extractScript;
-
-    @Value("${facecheck.detectScript}")
-    private String detectScript;
+    @Value("${storage.frames}")        private String framesDir;
+    @Value("${storage.audio}")         private String audioDir;
+    @Value("${models.yunet}")          private String yunetModelPath;
 
     // Render page
     @GetMapping("/videoRecord")
@@ -44,7 +47,7 @@ public class VideoController {
     // Upload endpoint
     @PostMapping(value = "/video/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseBody
-    public String uploadVideo(@RequestParam("file") MultipartFile file) {
+    public Map<String, Object> uploadVideo(@RequestParam("file") MultipartFile file, HttpSession session) {
 
         String uploadDir = storageRoot + File.separator + "video" + File.separator;
         File directory = new File(uploadDir);
@@ -55,14 +58,68 @@ public class VideoController {
         String filename = (file.getOriginalFilename() == null || file.getOriginalFilename().isBlank())
                 ? "recording.webm"
                 : file.getOriginalFilename();
-
+        
+        Map<String, Object> result = new HashMap<>();
         try {
             File dest = new File(uploadDir + filename);
             file.transferTo(dest);
-            return "Upload successful: " + dest.getPath();
-        } catch (IOException e) {
+            String uuid = filename.substring(0, filename.indexOf('.'));
+            
+            runAndCapture(new ProcessBuilder(
+                    pythonBin,
+                    extractFramesScript,
+                    dest.getAbsolutePath(),
+                    framesDir,
+                    uuid
+            ));
+
+            // 4) run extract_audio.py
+            // Usage: extract_audio.py <video_path> <audio_output_dir> <uuid>
+            runAndCapture(new ProcessBuilder(
+                    pythonBin,
+                    extractAudioScript,
+                    dest.getAbsolutePath(),
+                    audioDir,
+                    uuid
+            ));
+
+            // 5) run detect_face_yunet.py
+            // Usage: detect_face_yunet.py <frames_dir> <uuid> <yunet_onnx_path> [score_th]
+            String faceOut = runAndCapture(new ProcessBuilder(
+                    pythonBin,
+                    detectFaceScript,
+                    framesDir,
+                    uuid,
+                    yunetModelPath,
+                    "0.5"
+            ));
+            boolean faceOk = "1".equals(faceOut.trim());
+
+            // 6) run detect_speech.py
+            // Usage: detect_speech.py <wav_path> [mode] [speech_ratio_threshold]
+            String wavPath = audioDir + File.separator + uuid + ".wav";
+            String speechOut = runAndCapture(new ProcessBuilder(
+                    pythonBin,
+                    detectSpeechScript,
+                    wavPath,
+                    "1",      // less strict
+                    "0.03"    // less strict
+            ));
+            boolean speechOk = "1".equals(speechOut.trim());
+
+            // optionally store results in session for next step
+            session.setAttribute("faceOk", faceOk ? "y" : "n");
+            session.setAttribute("speechOk", speechOk ? "y" : "n");
+            result.put("faceOk", faceOk);
+            result.put("speechOk", speechOk);
+            result.put("success", faceOk && speechOk);
+
+            return result;
+            
+        } catch (Exception e) {
             e.printStackTrace();
-            return "Upload failed: Server Error.";
+            result.put("success", false);
+            return result;
         }
     }
 
@@ -107,4 +164,23 @@ public class VideoController {
 
         return "redirect:/videoRecord?error=novideo";
     }
+    
+    private String runAndCapture(ProcessBuilder pb) throws IOException, InterruptedException {
+        pb.redirectErrorStream(true);
+        Process p = pb.start();
+
+        StringBuilder sb = new StringBuilder();
+        try (java.io.BufferedReader r = new java.io.BufferedReader(
+                new java.io.InputStreamReader(p.getInputStream()))) {
+            String line;
+            while ((line = r.readLine()) != null) sb.append(line).append("\n");
+        }
+
+        int code = p.waitFor(); // sync
+        if (code != 0) {
+            throw new IOException("Command failed (exit=" + code + "):\n" + sb.toString());
+        }
+        return sb.toString().trim();
+    }
+
 }

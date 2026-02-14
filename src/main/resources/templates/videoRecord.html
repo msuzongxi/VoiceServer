@@ -392,16 +392,27 @@
     	    processData: false,
     	    contentType: false,
     	    timeout: 180000, // 3 minutes
-    	    success: function (respText) {
-    	      // Enable Next + show a friendly in-page message
-    	      $("#NextButton").prop("disabled", false);
+    	    success: function (resp) {
+    	    	  if (resp.success) {
+    	    	    $("#NextButton").prop("disabled", false);
+    	    	    showMsg(
+    	    	      "success",
+    	    	      "✅ Validation successful. You may now click <strong>Next</strong> to proceed."
+    	    	    );
 
-    	      showMsg(
-    	        "success",
-    	        "✅ Upload successful. You may now click <strong>Next</strong> to proceed to the next step."
-    	      );
-    	      
-    	    },
+    	    	  } else {
+    	    	    $("#NextButton").prop("disabled", true);
+    	    	    let msg = "⚠ Validation failed.<br>";
+    	    	    if (!resp.faceOk) {
+    	    	      msg += "• Face not detected.<br>";
+    	    	    }
+    	    	    if (!resp.speechOk) {
+    	    	      msg += "• Speech not detected.<br>";
+    	    	    }
+    	    	    msg += "<br>Please record again.";
+    	    	    showMsg("danger", msg);
+    	    	  }
+    	    	},
     	    error: function (xhr) {
     	      $("#uploadBtn").prop("disabled", false);
 
