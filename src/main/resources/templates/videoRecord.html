@@ -115,7 +115,7 @@
         <div class="btn-row">
           <button id="playBtn" disabled>Play Recording</button>
           <button id="Reload" onclick="location.reload()">Reload Page</button>
-          <button id="uploadBtn" disabled>Upload</button>
+          <button id="validateBtn" disabled>Validate</button>
         </div>
       </div>
 
@@ -156,7 +156,7 @@
     // jQuery elements
     var $startBtn = $("#startBtn");
     var $stopBtn = $("#stopBtn");
-    var $uploadBtn = $("#uploadBtn");
+    var $validateBtn = $("#validateBtn");
     var $playBtn = $("#playBtn");
     var $nextBtn = $("#NextButton");
 
@@ -278,7 +278,7 @@
       playbackEl.load();
 
       $playBtn.prop("disabled", false);
-      $uploadBtn.prop("disabled", false);
+      $validateBtn.prop("disabled", false);
     }
 
     function initCamera() {
@@ -327,7 +327,7 @@
       recordedChunks = [];
       resetProgress();
 
-      $uploadBtn.prop("disabled", true);
+      $validateBtn.prop("disabled", true);
       $playBtn.prop("disabled", true);
       $nextBtn.prop("disabled", true);
 
@@ -368,7 +368,7 @@
     	location.href = "/videoRecordNext";        
     });
 
-    $("#uploadBtn").on("click", function () {
+    $("#validateBtn").on("click", function () {
     	  if (!recordedChunks.length) {
     	    showMsg("warning", "No recording found. Please record your video first.");
     	    return;
@@ -382,8 +382,8 @@
     	  fd.append("rid", uuid);
 
     	  // UI state
-    	  $("#uploadBtn").prop("disabled", true);
-    	  showMsg("info", "Uploading... please wait.");
+    	  $("#validateBtn").prop("disabled", true);
+    	  showMsg("info", "Validating... please wait.");
 
     	  $.ajax({
     	    url: "/video/upload",
@@ -414,7 +414,7 @@
     	    	  }
     	    	},
     	    error: function (xhr) {
-    	      $("#uploadBtn").prop("disabled", false);
+    	      $("#validateBtn").prop("disabled", false);
 
     	      var msg = (xhr && xhr.responseText) ? xhr.responseText : ("HTTP " + (xhr ? xhr.status : ""));
     	      showMsg("danger", "❌ Upload failed: " + $("<div/>").text(msg).html());
