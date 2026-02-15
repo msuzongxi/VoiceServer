@@ -417,7 +417,7 @@
     	      $("#validateBtn").prop("disabled", false);
 
     	      var msg = (xhr && xhr.responseText) ? xhr.responseText : ("HTTP " + (xhr ? xhr.status : ""));
-    	      showMsg("danger", "❌ Upload failed: " + $("<div/>").text(msg).html());
+    	      showMsg("danger", "❌ validation failed: " + $("<div/>").text(msg).html());
     	    }
     	  });
     	});
