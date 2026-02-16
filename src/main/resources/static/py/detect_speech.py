@@ -2,19 +2,31 @@
 import os
 import sys
 import wave
+import struct
+import math
+
+def frame_rms_int16(frame_bytes: bytes) -> float:
+    """Compute RMS of 16-bit PCM mono frame."""
+    if not frame_bytes:
+        return 0.0
+    count = len(frame_bytes) // 2
+    samples = struct.unpack("<" + "h"*count, frame_bytes)
+    # RMS
+    s2 = 0.0
+    for x in samples:
+        s2 += float(x) * float(x)
+    return math.sqrt(s2 / max(1, count))
 
 def main():
     """
     Usage:
-      detect_speech.py <wav_path> [mode] [speech_ratio_threshold]
+      detect_speech.py <wav_path> [mode] [speech_ratio_threshold] [min_rms] [min_consecutive]
 
-    Params:
-      wav_path: must be 16-bit PCM WAV, mono, 16000 Hz (recommended)
-      mode: 0-3 aggressiveness (default 2)  (3 = most strict, fewer false positives)
-      speech_ratio_threshold: fraction of voiced frames required (default 0.08)
-
-    Output:
-      prints "1" if speech detected else "0"
+    Defaults tuned to be LESS permissive than before:
+      mode=2
+      speech_ratio_threshold=0.06
+      min_rms=200      (energy gate; tune if needed)
+      min_consecutive=3  (>= 3 consecutive 30ms speech frames => 90ms)
     """
     if len(sys.argv) < 2:
         print("0")
@@ -22,7 +34,9 @@ def main():
 
     wav_path = sys.argv[1]
     mode = int(sys.argv[2]) if len(sys.argv) >= 3 else 2
-    ratio_th = float(sys.argv[3]) if len(sys.argv) >= 4 else 0.08
+    ratio_th = float(sys.argv[3]) if len(sys.argv) >= 4 else 0.06
+    min_rms = float(sys.argv[4]) if len(sys.argv) >= 5 else 200.0
+    min_consec = int(sys.argv[5]) if len(sys.argv) >= 6 else 3
 
     if not os.path.exists(wav_path):
         print("0")
@@ -31,7 +45,6 @@ def main():
     try:
         import webrtcvad
     except Exception:
-        # dependency missing
         print("0")
         return 1
 
@@ -46,29 +59,43 @@ def main():
         rate = wf.getframerate()
         sampwidth = wf.getsampwidth()
 
-        # WebRTC VAD requires 16-bit mono PCM
         if channels != 1 or sampwidth != 2 or rate not in (8000, 16000, 32000, 48000):
-            # Not compatible audio format
             print("0")
             return 1
 
         vad = webrtcvad.Vad(mode)
 
-        # 30ms frames are standard for VAD (10/20/30 allowed)
         frame_ms = 30
-        frame_len = int(rate * frame_ms / 1000)         # samples per frame
-        bytes_per_frame = frame_len * 2                 # 16-bit => 2 bytes/sample
+        frame_len = int(rate * frame_ms / 1000)
+        bytes_per_frame = frame_len * 2
 
         voiced = 0
         total = 0
+
+        consec = 0
+        max_consec = 0
 
         while True:
             frame = wf.readframes(frame_len)
             if len(frame) < bytes_per_frame:
                 break
+
             total += 1
+
+            # Energy gate first: ignore very quiet frames
+            rms = frame_rms_int16(frame)
+            if rms < min_rms:
+                consec = 0
+                continue
+
+            # VAD decision
             if vad.is_speech(frame, rate):
                 voiced += 1
+                consec += 1
+                if consec > max_consec:
+                    max_consec = consec
+            else:
+                consec = 0
 
         if total == 0:
             print("0")
@@ -76,8 +103,8 @@ def main():
 
         speech_ratio = voiced / float(total)
 
-        # Print 1 if speech ratio exceeds threshold
-        if speech_ratio >= ratio_th:
+        # Decision: require both ratio and some consecutive speech
+        if (speech_ratio >= ratio_th) and (max_consec >= min_consec):
             print("1")
         else:
             print("0")
