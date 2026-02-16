@@ -102,8 +102,10 @@ public class VideoController {
                     pythonBin,
                     detectSpeechScript,
                     wavPath,
-                    "1",      // less strict
-                    "0.03"    // less strict
+                    "2",      
+                    "0.06",
+                    "200",
+                    "3"
             ));
             boolean speechOk = "1".equals(speechOut.trim());
 
