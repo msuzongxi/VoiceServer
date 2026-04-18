@@ -63,8 +63,8 @@ if __name__ == '__main__':
     ensure_default_models(Path("saved_models"))
     encoder.load_model(args.enc_model_fpath)
     print("\tTesting the encoder...")
-    root_folder = "/home/wsuser/projects/voice/audio/"
-    dst_folder = "/home/wsuser/projects/voice/embeddings/"
+    root_folder = "/home/ubuntu110/project/biometric/audio/"
+    dst_folder = "/home/ubuntu110/project/voice/embeddings/"
     file = arg_dict.get("file")
     file_id = file.replace(".wav", "")
     wav = audio.preprocess_wav(root_folder+file)
