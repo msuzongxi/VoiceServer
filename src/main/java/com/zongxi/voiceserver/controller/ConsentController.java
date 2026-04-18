@@ -62,7 +62,7 @@ public class ConsentController {
 			throw new RuntimeException("invalid post");
 		try
 		{
-		    File file = new File(storageRoot+"consent\\"+uuid+".txt");
+		    File file = new File(storageRoot+"consent1\\"+uuid+".txt");
 		    FileOutputStream os = new FileOutputStream(file);
 			Random random = new Random();
 			int qidx = random.nextInt(5);

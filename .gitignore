@@ -4,7 +4,13 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 !**/src/main/resources/keystore/
-projects/
+projects/**/*.csv
+projects/voice/
+projects/**/*.log
+projects/**/*.txt
+projects/**/*.jar
+projects/**/*.zip
+projects/**/synthesizer.pt
 
 ### STS ###
 .apt_generated
