@@ -5,8 +5,8 @@ from scipy.sparse import csr_matrix
 from scipy.stats import pearsonr
 import sys
 #####_root = "/Users/lewis/Documents/runtime/voicepersonality/survey/"
-_root = "/home/azureuser/projects/python/"
-_emb_root = "/home/azureuser/projects/voice/embeddings/"
+_root = "/home/ubuntu110/project/biometric/scripts/"
+_emb_root = "/home/ubuntu110/project/biometric/embeddings/"
 
 _format = "{\"songs\":\"_sids_\"}"
 #replace dataset with 350 subjects
@@ -41,7 +41,7 @@ if __name__== "__main__":
     ratings = ["1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5"]
     song_ids = _200_songs[random.sample(range(0, 200), 20)]
     subject_ratings = {song_id: ratings[random.randrange(0, 9)] for song_id in song_ids}
-    subject_uid = '7d6124f6-3012-4115-9f37-64e3d9c6531b'
+    subject_uid = '000a3a4f-3aca-4793-a420-db6bb6e619fe'
     # mock a subject's rating end'''
 
     # subject_uid = 'ff8d966d-a9a0-4a30-8bec-79d2270be784' ####Yaqiong: added for testing
