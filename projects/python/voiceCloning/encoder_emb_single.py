@@ -16,13 +16,13 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument("-e", "--enc_model_fpath", type=Path,
-                        default="/home/ubuntu110/project/biometric/voiceServer/projects/python/voiceCloning/saved_models/default/encoder.pt",
+                        default="/home/ubuntu110/project/biometric/voiceserver/projects/python/voiceCloning/saved_models/default/encoder.pt",
                         help="Path to a saved encoder")
     parser.add_argument("-s", "--syn_model_fpath", type=Path,
-                        default="/home/ubuntu110/project/biometric/voiceServer/projects/python/voiceCloning/saved_models/default/synthesizer.pt",
+                        default="/home/ubuntu110/project/biometric/voiceserver/projects/python/voiceCloning/saved_models/default/synthesizer.pt",
                         help="Path to a saved synthesizer")
     parser.add_argument("-v", "--voc_model_fpath", type=Path,
-                        default="/home/ubuntu110/project/biometric/voiceServer/projects/python/voiceCloning/saved_models/default/vocoder.pt",
+                        default="/home/ubuntu110/project/biometric/voiceserver/projects/python/voiceCloning/saved_models/default/vocoder.pt",
                         help="Path to a saved vocoder")
     parser.add_argument("--cpu", action="store_true", help=\
         "If True, processing is done on CPU, even when a GPU is available.")
@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     ## Load the models one by one.
     print("Preparing the encoder, the synthesizer and the vocoder...")
-    ensure_default_models(Path("saved_models"))
+    ensure_default_models(Path("/home/ubuntu110/project/biometric/voiceserver/projects/python/voiceCloning/saved_models"))
     encoder.load_model(args.enc_model_fpath)
     print("\tTesting the encoder...")
     root_folder = "/home/ubuntu110/project/biometric/audio/"
