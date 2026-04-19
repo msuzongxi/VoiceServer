@@ -37,12 +37,12 @@ if __name__== "__main__":
     subject_uid =  sys.argv[1:][1]
 
 
-    '''# mock a subject ratings begin - remove after web service call is ready
+    # mock a subject ratings begin - remove after web service call is ready
     ratings = ["1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5"]
     song_ids = _200_songs[random.sample(range(0, 200), 20)]
     subject_ratings = {song_id: ratings[random.randrange(0, 9)] for song_id in song_ids}
     subject_uid = '000a3a4f-3aca-4793-a420-db6bb6e619fe'
-    # mock a subject's rating end'''
+    # mock a subject's rating end
 
     # subject_uid = 'ff8d966d-a9a0-4a30-8bec-79d2270be784' ####Yaqiong: added for testing
     # subject_songs = pd.read_csv(_root + 'srating_' + subject_uid + ".csv", sep = '\t') ####Yaqiong: added for testing
