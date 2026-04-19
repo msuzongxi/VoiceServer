@@ -52,7 +52,15 @@ if __name__== "__main__":
     subject_emb = np.loadtxt(_emb_root + subject_uid + ".txt")
     df_voice_emb = pd.read_csv(_file_voice_emb)
     ####total_subject_similarity = np.dot(df_voice_emb.iloc[:, 1:].values, subject_emb) ####Yaqiong: here should use person correlation as well####
-    total_subject_similarity = np.array([pearsonr(emb[1:], subject_emb)[0] for ind, emb in df_voice_emb.iterrows()])
+    voice_ids = df_voice_emb.iloc[:, 0].values
+    voice_mat = df_voice_emb.iloc[:, 1:].to_numpy(dtype=float)
+    subject_emb = np.asarray(subject_emb, dtype=float)
+    # Compute similarity
+    total_subject_similarity = np.array([
+    pearsonr(row, subject_emb)[0]
+    for row in voice_mat
+    ])
+    #total_subject_similarity = np.array([pearsonr(emb[1:], subject_emb)[0] for ind, emb in df_voice_emb.iterrows()])
     total_subject_ids = df_voice_emb.iloc[:, 0].values
     df_similarity = pd.DataFrame(np.vstack((total_subject_ids, total_subject_similarity)).transpose(),
                                  columns=["uid", "similarity"])
