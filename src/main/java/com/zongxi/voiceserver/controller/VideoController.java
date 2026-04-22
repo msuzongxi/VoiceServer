@@ -160,7 +160,7 @@ public class VideoController {
 
         if (fileFound) {
             String encodedUuid = URLEncoder.encode(uuid, StandardCharsets.UTF_8);
-            String externalUrl = qualtricsLink + "?uuid=" + encodedUuid;
+            String externalUrl = qualtricsLink + "?biometricid=" + encodedUuid;
             return "redirect:" + externalUrl;
         }
 
