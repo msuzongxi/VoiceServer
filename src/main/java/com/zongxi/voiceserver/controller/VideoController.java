@@ -12,7 +12,9 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
@@ -21,6 +23,17 @@ public class VideoController {
 
     @Value("${storage.root}")
     private String storageRoot;
+
+    @Value("${icebreaker.q1}")
+    private String q1;    
+    @Value("${icebreaker.q2}")
+    private String q2;    
+    @Value("${icebreaker.q3}")
+    private String q3;    
+    @Value("${icebreaker.q4}")
+    private String q4;    
+    @Value("${icebreaker.q5}")
+    private String q5;    
     
     @Value("${qualtrics.link}")
     private String qualtricsLink;
@@ -40,9 +53,25 @@ public class VideoController {
     public String videoPage(Model model,
                             @RequestParam(value="test", required=false, defaultValue="n") String test,
                             HttpSession session) {
+    	String uuid = (String) session.getAttribute("uuid");
+		List questions = getQuestions();
+		int qidx = Integer.parseInt((String) session.getAttribute("qidx"));
+		model.addAttribute("question", questions.get(qidx));
+
         session.setAttribute("test", test);
         return "videoRecord";
     }
+    
+	private List getQuestions() {
+		List q = new ArrayList<String>();
+		q.add(q1);
+		q.add(q2);
+		q.add(q3);
+		q.add(q4);
+		q.add(q5);
+		return q;
+	}
+
 
     // Upload endpoint
     @PostMapping(value = "/video/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
