@@ -48,7 +48,7 @@ public class ConsentController {
 	@RequestMapping("/instructionNext")
 	public RedirectView instructionNext(Model model, HttpSession session) {
     	String uuid = (String) session.getAttribute("uuid");
-    	File file = new File(storageRoot+"consent/"+uuid+".txt");
+    	File file = new File(storageRoot+"consent1"+File.separator+uuid+".txt");
     	if(!file.exists()) {
     		throw new RuntimeException("uuid doesn't exist:"+uuid);
     	}
@@ -62,7 +62,7 @@ public class ConsentController {
 			throw new RuntimeException("invalid post");
 		try
 		{
-		    File file = new File(storageRoot+"consent1\\"+uuid+".txt");
+		    File file = new File(storageRoot+"consent1"+File.separator+uuid+".txt");
 		    FileOutputStream os = new FileOutputStream(file);
 			Random random = new Random();
 			int qidx = random.nextInt(5);
