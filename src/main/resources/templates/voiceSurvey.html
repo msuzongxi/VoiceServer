@@ -21,6 +21,28 @@
 	  line-height: 20px;
 	  color: black;
 	}
+	
+	#saveStatus.saving::before {
+	  content: "";
+	  display: inline-block;
+	  width: 14px;
+	  height: 14px;
+	  border: 2px solid #ccc;
+	  border-top-color: #4CAF50;
+	  border-radius: 50%;
+	  animation: spin .8s linear infinite;
+	  vertical-align: -2px;
+	  margin-right: 6px;
+	}
+	
+	@keyframes spin {
+	  to { transform: rotate(360deg); }
+	}
+	
+	button:disabled {
+	  opacity: .55;
+	  cursor: not-allowed;
+	}
       
     </style>
     <style>
@@ -65,6 +87,7 @@
 		<button id="Record">Record Speech</button>
 		<button id="Stop">Stop Speech</button>
 		<button id="Reload" onclick="location.reload()">Reload Page</button>
+		<span id="saveStatus" aria-live="polite" style="margin-left:12px;font-weight:bold;"></span>
 		 
 		<!--<button id="Play" disabled>Play Speech</button>--> 
 		
@@ -72,171 +95,240 @@
 		</div>
 </div>
 <script>
-const audio_len_m = 30 //10 seconds
-const audio_len_s = 30000 //10 seconds
-const move_speed = 100 //ms
+const audio_len_m = 30;
+const audio_len_s = 30000;
+const move_speed = 100;
+
+const recordButton = document.querySelector('#Record');
+const stopButton = document.querySelector('#Stop');
+const myprogressBar = document.querySelector('#myprogressBar');
+const nextButton = document.querySelector('#NextButton');
+const reloadButton = document.querySelector('#Reload');
+const playaudio = document.querySelector('#playaudio');
+const saveStatus = document.querySelector('#saveStatus');
+
+let recorder = null;
+let audio = null;
+let identity = null;
+let autoStopTimer = null;
+let localAudioUrl = null;
+
+let canNext = 0;
+let isRecording = false;
+let isSaving = false;
+
+const uuid = "[[${session.uuid}]]";
+
+stopButton.setAttribute('disabled', true);
+reloadButton.setAttribute('disabled', true);
+
+function setStatus(text, type) {
+  saveStatus.textContent = text || "";
+  saveStatus.className = type === "saving" ? "saving" : "";
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const result = reader.result || "";
+      const base64AudioMessage = result.split(',')[1];
+      resolve(base64AudioMessage);
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
 const recordAudio = () =>
-        new Promise(async resolve => {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          const mediaRecorder = new MediaRecorder(stream);
-          let audioChunks = [];
+  new Promise(async (resolve, reject) => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      let audioChunks = [];
 
-          mediaRecorder.addEventListener('dataavailable', event => {
-            audioChunks.push(event.data);
-          });
+      mediaRecorder.addEventListener('dataavailable', event => {
+        if (event.data && event.data.size > 0) {
+          audioChunks.push(event.data);
+        }
+      });
 
-          const start = () => {
-            audioChunks = [];
-            mediaRecorder.start();
-          };
+      const start = () => {
+        audioChunks = [];
+        mediaRecorder.start();
+      };
 
-          const stop = () =>
-            new Promise(resolve => {
-              mediaRecorder.addEventListener('stop', () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' });
-                const audioUrl = URL.createObjectURL(audioBlob);
-                const audio = new Audio(audioUrl);
-                const play = () => audio.play();
-                resolve({ audioChunks, audioBlob, audioUrl, play });
-              });
+      const stop = () =>
+        new Promise(resolveStop => {
+          if (mediaRecorder.state === "inactive") {
+            resolveStop(null);
+            return;
+          }
 
-              mediaRecorder.stop();
+          mediaRecorder.addEventListener('stop', () => {
+            const audioBlob = new Blob(audioChunks, {
+              type: mediaRecorder.mimeType || 'audio/webm'
             });
 
-          resolve({ start, stop });
-        });
-  let recorder;
-  let audio;
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            const play = () => audio.play();
 
-  const recordButton = document.querySelector('#Record');
-  const stopButton = document.querySelector('#Stop');
+            // 录完后关闭麦克风占用
+            stream.getTracks().forEach(track => track.stop());
+
+            resolveStop({ audioChunks, audioBlob, audioUrl, play });
+          }, { once: true });
+
+          mediaRecorder.stop();
+        });
+
+      resolve({ start, stop });
+    } catch (err) {
+      reject(err);
+    }
+  });
+
+function startProgressBar() {
+  let width = 0;
+
+  clearInterval(identity);
+
+  identity = setInterval(() => {
+    if (width >= audio_len_m) {
+      width = audio_len_m;
+      clearInterval(identity);
+    } else {
+      width = width + move_speed / 1000;
+    }
+
+    const percentage = width / audio_len_m * 100;
+    myprogressBar.style.width = percentage + '%';
+    myprogressBar.innerHTML = parseInt(width) + 's';
+  }, move_speed);
+}
+
+async function stopAndSave() {
+  if (!isRecording || isSaving) {
+    return;
+  }
+
+  isRecording = false;
+  isSaving = true;
+
+  clearInterval(identity);
+  clearTimeout(autoStopTimer);
+
   stopButton.setAttribute('disabled', true);
-  //const playButton = document.querySelector('#Play');
-  const myprogressBar = document.querySelector('#myprogressBar')
-  const nextButton = document.querySelector('#NextButton')
-  const reloadButton = document.querySelector('#Reload')
+  stopButton.innerHTML = "Saving...";
+  recordButton.setAttribute('disabled', true);
   reloadButton.setAttribute('disabled', true);
-  const playaudio = document.querySelector('#playaudio');
-  var canNext = 0
-  var uuid = "[[${session.uuid}]]";
-  var identity;
+  nextButton.setAttribute('disabled', true);
 
+  setStatus("Saving audio, please do not close this page...", "saving");
 
-  recordButton.addEventListener('click', async () => {
-          recordButton.setAttribute('disabled', true);
-          stopButton.removeAttribute('disabled');
-          //playButton.setAttribute('disabled', true);
-          // saveButton.setAttribute('disabled', true);
-          if (!recorder) {
-            recorder = await recordAudio();
-          }
-          var width = 0;
-          identity = setInterval(scene, move_speed);
-          function scene() {
-            if (width > audio_len_m) {
-              clearInterval(identity);
-            } else {
-              width = width + move_speed/1000; 
-              percentage = (width/audio_len_m * 100)
-              myprogressBar.style.width = percentage + '%'; 
-              myprogressBar.innerHTML = parseInt(width)  + 's';
-            }
-          }
-          recorder.start();
-		  const sleep = time => new Promise(resolve => setTimeout(resolve, time));
-          await sleep(audio_len_s);
-          audio = await recorder.stop();
+  try {
+    audio = await recorder.stop();
 
-          //save audio begin          
-          const reader = new FileReader();
-          reader.readAsDataURL(audio.audioBlob);
-          reader.onload = () => {
-          const base64AudioMessage = reader.result.split(',')[1];
+    if (!audio || !audio.audioBlob) {
+      throw new Error("No audio data captured.");
+    }
 
-          fetch('/api/voices', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: base64AudioMessage, rid:uuid})
-          }).then(res => {
-            if (res.status === 200) {
-              nextButton.removeAttribute('disabled');
-              canNext = 1;
-              playaudio.src='/openFile/'+uuid+'.mp4';
-	          //recordButton.removeAttribute('disabled');
-	          stopButton.setAttribute('disabled', true);
-	          reloadButton.removeAttribute('disabled');
-              return;
-            }
-            console.log('Invalid status saving audio message: ' + res.status);
-          });
-          };
+    // 先让用户本地试听，不必等后台处理完成
+    if (localAudioUrl) {
+      URL.revokeObjectURL(localAudioUrl);
+    }
 
-        });
-        
-  stopButton.addEventListener('click', async () => {
-          if (!recorder) {
-            recorder = await recordAudio();
-          }
-          audio = await recorder.stop();
-          clearInterval(identity);
-          
-          const reader = new FileReader();
-          reader.readAsDataURL(audio.audioBlob);
-          reader.onload = () => {
-          const base64AudioMessage = reader.result.split(',')[1];
+    localAudioUrl = audio.audioUrl;
+    playaudio.src = localAudioUrl;
+    playaudio.load();
 
-          fetch('/api/voices', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: base64AudioMessage, rid:uuid})
-          }).then(res => {
-            if (res.status === 200) {
-              nextButton.removeAttribute('disabled');
-              canNext = 1;
-              playaudio.src='/openFile/'+uuid+'.mp4';
-	          //recordButton.removeAttribute('disabled');
-	          stopButton.setAttribute('disabled', true);
-	          reloadButton.removeAttribute('disabled');
-              return;
-            }
-            console.log('Invalid status saving audio message: ' + res.status);
-          });
-          };
+    setStatus("Audio recorded. Uploading and processing on server...", "saving");
 
-        });
+    const base64AudioMessage = await blobToBase64(audio.audioBlob);
 
- /* playButton.addEventListener('click', () => {
-        var identity = setInterval(pscene, move_speed);
-        var width = 0;
-          function pscene() {
-            if (width > audio_len_m) {
-              clearInterval(identity);
-            } else {
-              width = width + move_speed/1000; 
-              percentage = (width/audio_len_m * 100)
-              myprogressBar.style.width = percentage + '%'; 
-              myprogressBar.innerHTML = width.toFixed(0)  + 's';
-            }
-          }
-        playButton.setAttribute('disabled', true);
-        audio.play();
-        setTimeout(retry, audio_len_s+1000);
-        function retry(){
-          recordButton.removeAttribute('disabled');
-          recordButton.innerHTML = "Record Again";
-        }
-      });*/
-      
-      nextButton.addEventListener('click', () => {
-      	if (canNext != 1){
-      		alert("Please record your voice before proceed to next page!");
-      		return; 
-      	}
-      	//location.href = "https://milwaukee.qualtrics.com/jfe/form/SV_9LIbfCdlzJNYzUG?uuid="+uuid;
-		//location.href = "https://milwaukee.qualtrics.com/jfe/form/SV_9RYZHDd4JzpVVzM?uuid="+uuid;
-      	location.href = "https://milwaukee.qualtrics.com/jfe/form/SV_3skattg3mAYebT8?uuid="+uuid;
-      });
-  
+    const res = await fetch('/api/voices', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: base64AudioMessage, rid: uuid })
+    });
+
+    if (!res.ok) {
+      throw new Error("Invalid status saving audio message: " + res.status);
+    }
+
+    // 后台处理完成后，再切换到服务器文件
+    nextButton.removeAttribute('disabled');
+    canNext = 1;
+
+    playaudio.src = '/openFile/' + uuid + '.mp4?ts=' + Date.now();
+    playaudio.load();
+
+    reloadButton.removeAttribute('disabled');
+    setStatus("Saved. You can preview the audio or continue.", "");
+
+  } catch (err) {
+    console.error(err);
+
+    setStatus("Save failed. Please click Reload Page and record again.", "");
+    reloadButton.removeAttribute('disabled');
+
+  } finally {
+    isSaving = false;
+    stopButton.innerHTML = "Stop Speech";
+    stopButton.setAttribute('disabled', true);
+  }
+}
+
+recordButton.addEventListener('click', async () => {
+  try {
+    recordButton.setAttribute('disabled', true);
+    stopButton.removeAttribute('disabled');
+    reloadButton.setAttribute('disabled', true);
+    nextButton.setAttribute('disabled', true);
+
+    canNext = 0;
+    isRecording = true;
+    isSaving = false;
+
+    setStatus("Recording...", "");
+
+    if (!recorder) {
+      recorder = await recordAudio();
+    }
+
+    startProgressBar();
+    recorder.start();
+
+    autoStopTimer = setTimeout(() => {
+      stopAndSave();
+    }, audio_len_s);
+
+  } catch (err) {
+    console.error(err);
+
+    setStatus("Microphone unavailable. Please allow microphone permission and reload.", "");
+    recordButton.removeAttribute('disabled');
+    stopButton.setAttribute('disabled', true);
+    reloadButton.removeAttribute('disabled');
+  }
+});
+
+stopButton.addEventListener('click', () => {
+  stopAndSave();
+});
+
+nextButton.addEventListener('click', () => {
+  if (canNext !== 1) {
+    alert("Please record your voice before proceed to next page!");
+    return;
+  }
+
+  location.href = "https://milwaukee.qualtrics.com/jfe/form/SV_3skattg3mAYebT8?uuid=" + uuid;
+});
 </script>
+
   </body>
 </html>
