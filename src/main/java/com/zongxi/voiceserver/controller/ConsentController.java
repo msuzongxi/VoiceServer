@@ -37,7 +37,7 @@ public class ConsentController {
 	public String instruction(Model model,HttpSession session) {
     	String uuid = (String) session.getAttribute("uuid");
     	System.out.println("before"+storageRoot+uuid);
-    	File file = new File(storageRoot+"consent"+File.separator+uuid+".txt");
+    	File file = new File(storageRoot+"consent1"+File.separator+uuid+".txt");
     	if(!file.exists()) {
     		throw new RuntimeException("uuid doesn't exist:"+uuid);
     	}
