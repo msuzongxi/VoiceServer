@@ -102,7 +102,7 @@ public class VoiceApiController {
 		};
 	}
 	
-	@CrossOrigin
+	/*@CrossOrigin
 	@RequestMapping(value="/recommend", method=RequestMethod.POST)
 	public StreamingResponseBody recommend(@RequestBody RatingsBody rating) {
 		System.out.println(rating);
@@ -171,7 +171,75 @@ public class VoiceApiController {
 			}
 			
 		};
+	}*/
+	
+	@CrossOrigin
+	@RequestMapping(value="/recommend", method=RequestMethod.POST)
+	public StreamingResponseBody recommend(@RequestBody RatingsBody rating) {
+		System.out.println(rating);
+		return new StreamingResponseBody() {
+
+			@Override
+			public void writeTo(OutputStream out) throws IOException {
+				String s = null;
+				try {
+					Random rand = new Random();
+					int randNum = rand.nextInt(2) + 1;
+					String algPy = vbcfPy;
+					if(randNum <= 1) {
+						randNum = 1;
+					}else {
+						randNum = 2;
+					}
+					if(randNum == 2) {
+						algPy = popularityPy;
+					}else {
+						algPy = vbcfPy;
+					}
+					File file = new File(storageRoot+"random/"+rating.getUid()+".txt");
+				    FileOutputStream os = new FileOutputStream(file);
+				    os.write(String.valueOf(randNum).getBytes());
+				    os.close();
+
+				    System.out.println("Here is the randomization result:" + String.valueOf(randNum)+", "+algPy);
+					
+					Process p = Runtime.getRuntime().exec(algPy+" "+rating.getMesage()+" "+rating.getUid());
+					BufferedReader stdInput = new BufferedReader(new 
+			                 InputStreamReader(p.getInputStream()));
+
+		            BufferedReader stdError = new BufferedReader(new 
+		                 InputStreamReader(p.getErrorStream()));
+
+		            // read the output from the command
+		            StringBuilder builder = new StringBuilder();
+		            while ((s = stdInput.readLine()) != null) {
+		                builder.append(s);
+		            }
+		            System.out.println("Here is the standard output of the command (if any):\n");
+		            System.out.println(builder.toString());
+		            String recommd = builder.toString();
+		            recommd = recommd.replace("}", ",\"randId\":\""+String.valueOf(randNum)+"\"}");
+		            
+		            out.write(recommd.getBytes());
+		            out.flush();
+		            
+		            // read any errors from the attempted command
+		            System.out.println("Here is the standard error of the command (if any):\n");
+		            while ((s = stdError.readLine()) != null) {
+		                System.out.println(s);
+		            }
+				}
+				catch (IOException e) {
+		            System.out.println("exception happened - here's what I know: ");
+		            e.printStackTrace();
+		        }
+//				out.write("{\"songs\":\"1;2;3;4;5;6;7;8;9;10\"}".getBytes());
+//				out.flush();
+			}
+			
+		};
 	}
+
 	
 
 }
