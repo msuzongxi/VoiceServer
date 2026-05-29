@@ -44,6 +44,8 @@ public class VoiceApiController {
 
 	@Value("${api.popularity.py}")
     private String popularityPy;    
+	@Value("${api.random.py}")
+    private String randomPy;  
 	@Value("${api.urbcf.py}")
     private String urbcfPy;    
 	@Value("${api.vbcf.py}")
@@ -192,7 +194,7 @@ public class VoiceApiController {
 						randNum = 2;
 					}
 					if(randNum == 2) {
-						algPy = popularityPy;
+						algPy = randomPy;
 					}else {
 						algPy = vbcfPy;
 					}
