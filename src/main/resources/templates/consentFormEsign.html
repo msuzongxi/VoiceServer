@@ -1,0 +1,448 @@
+<html xmlns:th="http://www.thymeleaf.org" class="JFEScope" lang="EN">
+  <head>
+    <title>Consent Form</title>
+    <link href="/stylesheet.css" rel="stylesheet">
+
+    <style>
+      audio {
+        display: block;
+        margin: 5px;
+      }
+
+      #Progress_Status {
+        width: 25%;
+        background-color: #ddd;
+      }
+
+      #myprogressBar {
+        width: 0%;
+        height: 25px;
+        background-color: #4CAF50;
+        text-align: center;
+        line-height: 20px;
+        color: black;
+      }
+
+      .JFEScope .questionFocused .advanceButtonContainer {
+        transition: opacity .3s !important;
+        visibility: unset;
+        opacity: 1;
+      }
+
+      .JFEScope .questionUnfocused .advanceButtonContainer,
+      .advanceButtonContainer {
+        transition: opacity .3s !important;
+        visibility: hidden;
+        opacity: 0;
+      }
+
+      .Skin .Bipolar .bipolar-mobile-header,
+      .Skin .Bipolar .desktop .bipolar-mobile-header,
+      .Skin .Bipolar .mobile .ColumnLabelHeader {
+        display: none;
+      }
+
+      html.MobilePreviewFrame::-webkit-scrollbar {
+        display: none;
+      }
+
+      html.MobilePreviewFrame {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      .consent-container {
+        max-width: 980px;
+      }
+
+      .text {
+        font-size: 14px;
+        line-height: 1.55;
+        margin: 0 0 12px 0;
+      }
+
+      .question {
+        font-size: 15px;
+        margin: 18px 0 8px 0;
+      }
+
+      .heading-top {
+        margin-top: 4px;
+        margin-bottom: 2px;
+        text-align: center;
+        font-size: 16px;
+      }
+
+      .subtle {
+        font-size: 14px;
+        margin-bottom: 14px;
+      }
+
+      .consent-section {
+        margin-top: 18px;
+        padding: 16px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background: #fafafa;
+      }
+
+      .field-label {
+        display: block;
+        font-size: 15px;
+        font-weight: bold;
+        margin: 14px 0 6px 0;
+      }
+
+      .printed-name-input {
+        width: 100%;
+        max-width: 520px;
+        padding: 8px 10px;
+        font-size: 16px;
+        box-sizing: border-box;
+      }
+
+      .checkbox-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 14px;
+        font-size: 15px;
+        line-height: 1.45;
+      }
+
+      .checkbox-row input[type="checkbox"] {
+        width: 22px;
+        height: 22px;
+        flex: 0 0 auto;
+        margin-top: 2px;
+      }
+
+      .signature-pad-wrap {
+        max-width: 520px;
+      }
+
+      #signaturePad {
+        width: 100%;
+        height: 40px;
+        border: 1px solid #333;
+        background: #fff;
+        display: block;
+        touch-action: none;
+        cursor: crosshair;
+      }
+
+      .signature-help {
+        font-size: 13px;
+        color: #555;
+        margin-top: 5px;
+      }
+
+      .button-row {
+        margin-top: 16px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .consent-button {
+        padding: 9px 16px;
+        font-size: 15px;
+        cursor: pointer;
+      }
+
+      .submit-button {
+        font-weight: bold;
+      }
+
+      .error-message {
+        margin-top: 12px;
+        color: #b00020;
+        font-weight: bold;
+        display: none;
+      }
+
+      @media print {
+        .no-print {
+          display: none !important;
+        }
+
+        body {
+          margin: 20mm;
+        }
+
+        #signaturePad {
+          border: 1px solid #000;
+        }
+      }
+    </style>
+
+    <style type="text/css">
+      .accessibility-hidden {
+        height: 0;
+        width: 0;
+        overflow: hidden;
+        position: absolute;
+        left: -999px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="Skin">
+      <div id="SkinContent">
+        <div class="consent-container">
+          <div id="LogoBar">
+            <h1 class="heading-top">
+              <strong>Santa Clara University</strong><br/>
+              <strong>INFORMED CONSENT FORM (FOR ADULTS)</strong><br/>
+              <strong>Music Personalization</strong>
+            </h1>
+
+            <div th:if="${session.test == 'y'}">
+              <div>Welcome, <strong>[[${uuid}]]</strong></div>
+            </div>
+          </div>
+
+          <p class="text">Dear Participant,</p>
+
+          <p class="text">
+            <strong><u>Yaqiong Wang</u>, who is <u>a faculty member in the Information Systems and Analytics Department at Santa Clara University</u>, has requested your participation in a research study at this institution.</strong>
+          </p>
+
+          <p class="text">
+            <strong>The purpose of the research is to</strong> study how individuals perceive quality of music recommendation from different methods and disclosure strategies. We are interested in how users respond to these recommendations.
+          </p>
+
+          <p class="text">
+            <strong>Your participation will involve</strong> recording a brief interview of yourself answering a spontaneous question, then you will answer a few questions in a survey about your background. We will then recommend some music samples for your evaluation. This participation will occur online through Prolific.
+          </p>
+
+          <p class="text">
+            <strong>Participation is voluntary.</strong> You can refuse to take part or stop at any time without penalty.
+          </p>
+
+          <p class="text">
+            <strong>There are foreseeable risks or discomforts to you if you agree to participate in the study. The possible risks are that</strong> subjects may feel some light discomfort recording their data, or may not like the recommended song.
+          </p>
+
+          <p class="text">
+            <strong>There is no direct benefit to you anticipated from participating in this study. However, it is hoped that the information gained from the study will help</strong> us understand how people respond to algorithmic recommendations and method disclosure. This can help to form privacy policy, and best practices.
+          </p>
+
+          <p class="text">
+            <strong>The results of the research study may be published but your name or identity will not be revealed. In order to maintain confidentiality of your records, <u>Yaqiong Wang</u> will</strong> label research records with study IDs via Prolific, and you will not be able to be identified within the data. Data collected in this research will be used solely for this study.
+          </p>
+
+          <p class="text">
+            <strong>You will be paid for your participation</strong> via the Prolific platform by the preset hourly rate once your response is approved by the investigator.
+          </p>
+
+          <p class="text">
+            <strong>Any questions you have concerning the research study or your participation in it, before or after your consent, will be answered by <a href="mailto:ywang31@scu.edu">Yaqiong Wang through ywang31@scu.edu</a>, and <a href="tel:408-554-4046">408-554-4046</a>.</strong>
+          </p>
+
+          <p class="text">
+            <strong>(In case of injury,) If you have questions about my rights as a subject/participant in this research, or if you feel you have been placed at risk, you can contact the Chair of the Human Subjects Committee, through Office of Research Compliance and Integrity at (408) 554-5591.</strong>
+          </p>
+
+          <p class="text">
+            <strong>This form explains the nature, demands, benefits and any risk of the project. By signing electronically below, you agree knowingly to assume any risks involved. Remember, your participation is voluntary. You may choose not to participate or to withdraw your consent and discontinue participation at any time without penalty or loss of benefit. By signing this consent form electronically, you are not waiving any legal claims, rights, or remedies. Please keep a copy of this consent form for your records.</strong>
+          </p>
+          
+          <p class="text">
+            <strong>"I have provided (offered) the subject/participant a copy of this signed consent document."</strong>
+          </p>
+          
+          <p class="text">
+            Signature of Investigator_______Yaqiong Wang_______________
+          </p>
+          
+          <p class="text">
+            <strong>Your signature below indicates that you are age 18 or over and consent to participate in the above study.</strong><br/>  (Release statement for videotaping or relinquishing confidentiality must be inserted here if applicable.)
+          </p>
+          
+          <form id="Consentform" action="saveConsentEsign" method="post">
+            <div class="consent-section">
+              <label class="field-label" for="printedName">
+                Printed Name
+              </label>
+
+              <input
+                id="printedName"
+                class="printed-name-input"
+                type="text"
+                name="printedName"
+                autocomplete="name"
+                required
+              />
+
+              <label class="field-label">
+                Electronic Signature
+              </label>
+
+              <div class="signature-pad-wrap">
+                <canvas id="signaturePad"></canvas>
+                <div class="signature-help">
+                  Please sign in the box above using your mouse, trackpad, finger, or stylus.
+                </div>
+              </div>
+
+              <div class="button-row no-print">
+                <button type="button" id="clearSignature" class="consent-button">
+                  Clear Signature
+                </button>
+              </div>
+
+              <label class="checkbox-row" for="AgreeButton">
+                <input id="AgreeButton" type="checkbox" name="terms" value="agree" required>
+                <span>
+                  <strong>
+                    I confirm that I am age 18 or older, that I have read and understood the consent information above, and that I voluntarily consent to participate in this study.
+                  </strong>
+                </span>
+              </label>
+
+              <div id="errorMessage" class="error-message"></div>
+
+              <div class="button-row no-print">
+                <button type="button" class="consent-button" onclick="window.print()">
+                  Print / Save a Copy
+                </button>
+
+                <button type="submit" class="consent-button submit-button">
+                  Submit Electronic Consent
+                </button>
+              </div>
+            </div>
+
+            <input type="hidden" name="uuid" th:value="${uuid}"/>
+            <input type="hidden" id="signatureData" name="signatureData"/>
+            <input type="hidden" id="consentTimestamp" name="consentTimestamp"/>
+            <input type="hidden" id="consentVersion" name="consentVersion" value="music-personalization-consent-v1"/>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const consentForm = document.querySelector('#Consentform');
+      const agreeButton = document.querySelector('#AgreeButton');
+      const printedNameInput = document.querySelector('#printedName');
+      const signatureDataInput = document.querySelector('#signatureData');
+      const consentTimestampInput = document.querySelector('#consentTimestamp');
+      const errorMessage = document.querySelector('#errorMessage');
+
+      const canvas = document.querySelector('#signaturePad');
+      const ctx = canvas.getContext('2d');
+
+      let isDrawing = false;
+      let hasSignature = false;
+
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+      }
+
+      function clearError() {
+        errorMessage.textContent = '';
+        errorMessage.style.display = 'none';
+      }
+
+      function setupCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+        canvas.width = rect.width * ratio;
+        canvas.height = rect.height * ratio;
+
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = '#000';
+      }
+
+      function getPoint(event) {
+        const rect = canvas.getBoundingClientRect();
+
+        return {
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top
+        };
+      }
+
+      function startDrawing(event) {
+        event.preventDefault();
+        clearError();
+
+        isDrawing = true;
+
+        const point = getPoint(event);
+        ctx.beginPath();
+        ctx.moveTo(point.x, point.y);
+      }
+
+      function draw(event) {
+        if (!isDrawing) return;
+
+        event.preventDefault();
+
+        const point = getPoint(event);
+        ctx.lineTo(point.x, point.y);
+        ctx.stroke();
+
+        hasSignature = true;
+      }
+
+      function stopDrawing(event) {
+        if (!isDrawing) return;
+
+        event.preventDefault();
+        isDrawing = false;
+      }
+
+      setupCanvas();
+
+      canvas.addEventListener('pointerdown', startDrawing);
+      canvas.addEventListener('pointermove', draw);
+      canvas.addEventListener('pointerup', stopDrawing);
+      canvas.addEventListener('pointerleave', stopDrawing);
+      canvas.addEventListener('pointercancel', stopDrawing);
+
+      document.querySelector('#clearSignature').addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        hasSignature = false;
+        clearError();
+      });
+
+      consentForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        clearError();
+
+        const printedName = printedNameInput.value.trim();
+
+        if (!printedName) {
+          showError('Please enter your printed name.');
+          printedNameInput.focus();
+          return;
+        }
+
+        if (!hasSignature) {
+          showError('Please provide your electronic signature.');
+          return;
+        }
+
+        if (!agreeButton.checked) {
+          showError('Please check the consent box to continue with the study.');
+          agreeButton.focus();
+          return;
+        }
+
+        signatureDataInput.value = canvas.toDataURL('image/png');
+        consentTimestampInput.value = new Date().toISOString();
+
+        consentForm.submit();
+      });
+    </script>
+  </body>
+</html>
