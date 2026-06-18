@@ -52,12 +52,12 @@ public class ConsentController {
 		return "consentForm";
 	}
 	
-	@GetMapping("/consentFormEsign")
+	/*@GetMapping("/consentFormEsign")
 	public String consentFormEsign(Model model, @RequestParam(value="test", required=false, defaultValue="n")String test, HttpSession session) {
 		model.addAttribute("uuid", UUID.randomUUID());
 		session.setAttribute("test", test);
 		return "consentFormEsign";
-	}
+	}*/
 	
 	@GetMapping("/instruction")
 	public String instruction(Model model,HttpSession session) {
@@ -97,7 +97,7 @@ public class ConsentController {
 			session.setAttribute("qidx", String.valueOf(qidx));
 			session.setAttribute("uuid", uuid);
 			
-			return new RedirectView("instruction");
+			return new RedirectView("voiceRecord");
 		}
 		catch (Exception e)
 		{
@@ -206,7 +206,7 @@ public class ConsentController {
 	        session.setAttribute("qidx", String.valueOf(qidx));
 	        session.setAttribute("uuid", safeUuid);
 
-	        return new RedirectView("instruction");
+	        return new RedirectView("voiceRecord");
 	    }
 	    catch (Exception e) {
 	        e.printStackTrace();
